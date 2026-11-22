@@ -156,5 +156,5 @@ select
         'OK'
     ) as status
 from check_data
-where avg_previous > 0 and status = 'ALERT'
+where avg_previous > 0 and week < '2026-09-13'
 order by week, utm_source;
