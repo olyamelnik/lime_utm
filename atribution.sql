@@ -19,21 +19,6 @@ group by first_ch
 order by orders desc;
 
 --линейная
---не хватает памяти(((
-select source as channel, round(sum(orders * visits / total_visits)) as orders
-from (
-    select loyalty_id,
-           source,
-           count() as visits,
-           sum(count()) over (partition by loyalty_id) as total_visits,
-           sum(uniqIf(order_id, order_id != '')) over (partition by loyalty_id) as orders
-    from web_visits
-    group by loyalty_id, source
-)
-group by source
-order by orders desc;
-
---линейная
 select
     round(sum(orders * v_yandex    / total)) as yandex,
     round(sum(orders * v_vk        / total)) as vk,
