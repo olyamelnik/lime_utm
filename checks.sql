@@ -155,6 +155,27 @@ select
         'ALERT',
         'OK'
     ) as status
+
+-- проверка: визиты с заказом, у которых нет заказа в order_items
+-- порог: больше 3% за неделю (обычный фон 1,9%)
+select
+    week,
+    count()                                      as orders,
+    countIf(not found)                           as not_found,
+    round(not_found * 100.0 / orders, 2)         as pct_not_found,
+    if(pct_not_found > 3, 'ALERT', 'ok')         as status
+from (
+    select
+        toStartOfWeek(started_at, 1) as week,
+        toInt64OrNull(order_id) as oid,
+        oid in (select order_id from order_items where order_id is not null) as found
+    from web_visits
+    where order_id != ''
+      and started_at < toStartOfWeek(now(), 1)  
+    group by week, oid
+)
+group by week
+order by week;
 from check_data
 where avg_previous > 0 and week < '2026-09-13'
 order by week, utm_source;
