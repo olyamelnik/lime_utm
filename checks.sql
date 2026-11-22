@@ -45,6 +45,23 @@ where utm_medium is not null
 group by utm_medium
 order by visits desc;
 
+-- проверка разных написаний utm_campaign внутри каналов
+
+select
+    source,
+    lower(
+        replaceAll(trim(utm_campaign), '-', ' ')
+    ) as normalized_campaign,
+    countDistinct(utm_campaign) as variants,
+    groupArray(distinct utm_campaign) as raw_values,
+    count() as visits
+from web_visits
+where utm_campaign is not null
+  and trim(utm_campaign) != ''
+group by source, normalized_campaign
+having variants > 1
+order by variants desc, visits desc;
+
 -- проверка некорректного регистра и пробелов в utm_source
 
 select
